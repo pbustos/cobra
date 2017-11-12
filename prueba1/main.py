@@ -7,6 +7,8 @@ from PyQt4 import QtCore, QtGui
 from widgets.QNetworkxGraph.QNetworkxGraph import QNetworkxWidget, NodeShapes
 from viewer import Viewer
 from model import Model
+import networkx as nx
+
 
 class Main():
     """This is the Main class which spawns the objects for the Model,
@@ -33,6 +35,12 @@ class Main():
         print("added edges:", self.model.graph.number_of_edges())
 
         self.viewer.show()
+
+        initial_pos = nx.circular_layout(self.model.graph)
+        initial_pos = self.viewer.graph_visualization.networkx_positions_to_pixels(initial_pos)
+        self.viewer.graph_visualization.set_node_positions(initial_pos)
+        print("added graph nodes:", self.viewer.graph_visualization.nx_graph.number_of_nodes())
+
         self.viewer.graph_visualization.animate_nodes(True)
 
 

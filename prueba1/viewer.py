@@ -52,6 +52,14 @@ class Viewer(QtGui.QMainWindow, MainWindow):
         # initialise graph object
         self.add_graph_visualization()
 
+        #self.set_background_color()
+
+    def set_background_color(self, color=None):
+        if not color:
+            color = QtGui.QColorDialog.getColor()
+            self.graph_visualization.background_color = color
+            self.graph_visualization.setBackgroundBrush(color)
+
     def add_node(self, node, nodedata=None, position=None):
         self.graph_visualization.add_node(node, position)
         createdNode = self.graph_visualization.get_node(node)['item']
