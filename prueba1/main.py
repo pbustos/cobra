@@ -27,11 +27,12 @@ class Main():
 
         #transfer model to viewer
 
-        for node, data in self.model.graph.nodes_iter(data=True):
-             self.viewer.add_node(node, data)
+        for node in self.model.graph.nodes():
+             self.viewer.add_node(node)
         print("added nodes:",self.model.graph.number_of_nodes())
-        for orig, dest, data in self.model.graph.edges_iter(data=True):
-             self.viewer.add_edge(orig, dest, data)
+        
+        for edge in self.model.graph.edges():
+	    self.viewer.add_edge(edge[0], edge[1], str(self.model.graph.edges[edge[0],edge[1]]['label']))
         print("added edges:", self.model.graph.number_of_edges())
 
         self.viewer.show()
@@ -41,7 +42,8 @@ class Main():
         self.viewer.graph_visualization.set_node_positions(initial_pos)
         print("added graph nodes:", self.viewer.graph_visualization.nx_graph.number_of_nodes())
 
-        #self.viewer.graph_visualization.animate_nodes(True)
+	self.viewer.connect(self.viewer.animateButton, QtCore.SIGNAL("clicked()"), self.viewer.animate_button)
+        self.viewer.graph_visualization.animate_nodes(True)      
 
 
 if __name__ == '__main__':

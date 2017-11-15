@@ -70,12 +70,16 @@ class Viewer(QtGui.QMainWindow, MainWindow):
         #         return
         createdNode.node_shape=2
 
-    def add_edge(self, orig_node, dest_node, edge_data=None):
-        self.graph_visualization.add_edge(first_node=orig_node, second_node=dest_node)
+    def add_edge(self, orig_node, dest_node, edge_label):
+        self.graph_visualization.add_edge(first_node=orig_node, second_node=dest_node, label=edge_label)
 
     def add_graph_visualization(self):
         self.graph_visualization = QNetworkxWidget()
         self.setCentralWidget(self.graph_visualization)
-
+        
     def get_graph_nodes_positions(self):
         return self.graph_visualization.get_current_nodes_positions()
+      
+    def animate_button(checked):
+      graph_visualization.animate_nodes(checked)
+    

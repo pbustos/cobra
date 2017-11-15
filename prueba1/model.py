@@ -67,11 +67,11 @@ class Model():
         # load model as a graph to NX
         # We use the compound  model in which nodes are reactions and edges are metabolites
         print('------- Names for nodes -------------')
-        for r in model.reactions:
-            #[r.id, r.name, r.subsystem, r.lower_bound, r.upper_bound]
-            self.add_node({'@alias':r.id})
-            #print(r.id)
-        # Now search for each node all edges coming out from it
+        #for r in model.reactions:
+            ##[r.id, r.name, r.subsystem, r.lower_bound, r.upper_bound]
+            #self.add_node({'@alias':r.id})
+            ##print(r.id)
+        ## Now search for each node all edges coming out from it
         for r in model.reactions:
             for k,v in r.metabolites.iteritems():
                 if v == 1:
@@ -80,16 +80,16 @@ class Model():
                     for rr in model.reactions:
                         for kk,vv in rr.metabolites.iteritems():
                             if kk == k and vv == -1:
-                                self.add_edge(r.id,rr.id)
+                                self.add_edge(r.id,rr.id, k)
                                 #print 'Added edge', r.id, rr.id
-
+#MAL
     def add_node(self, nodedata):
         self.graph.add_node(nodedata['@alias'])
         for key, value in nodedata.items():
             self.graph.node[nodedata['@alias']][key] = value
 
-    def add_edge(self, fromNode, toNode):
-        self.graph.add_edge(fromNode, toNode)
+    def add_edge(self, fromNode, toNode, name):
+        self.graph.add_edge(fromNode, toNode, label=name)
 
 
 if __name__ == '__main__':
