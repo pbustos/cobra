@@ -36,12 +36,12 @@ class Main():
 
         self.viewer.show()
 
-        initial_pos = nx.circular_layout(self.model.graph)
+        initial_pos = nx.random_layout(self.model.graph)
         initial_pos = self.viewer.graph_visualization.networkx_positions_to_pixels(initial_pos)
         self.viewer.graph_visualization.set_node_positions(initial_pos)
         print("added graph nodes:", self.viewer.graph_visualization.nx_graph.number_of_nodes())
 
-        self.viewer.graph_visualization.animate_nodes(True)
+        #self.viewer.graph_visualization.animate_nodes(True)
 
 
 if __name__ == '__main__':

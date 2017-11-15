@@ -47,7 +47,7 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 
         # set  window icon
         #self.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("share/rcmanager/drawing_green.png")))
-        self.showMaximized()
+        #self.showMaximized()
 
         # initialise graph object
         self.add_graph_visualization()
@@ -75,6 +75,7 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 
     def add_graph_visualization(self):
         self.graph_visualization = QNetworkxWidget()
+        self.setCentralWidget(self.graph_visualization)
 
     def get_graph_nodes_positions(self):
         return self.graph_visualization.get_current_nodes_positions()

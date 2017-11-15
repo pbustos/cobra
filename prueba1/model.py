@@ -43,20 +43,7 @@ class Model():
         self.generalInformation = dict()
 
         # create model
-        #self.createModel()
-
-        self.add_node({'@alias': 'A'})
-        self.add_node({'@alias': 'B'})
-        self.add_node({'@alias': 'C'})
-        self.add_node({'@alias': 'D'})
-
-        self.add_edge('A', 'B')
-        self.add_edge('B', 'C')
-        self.add_edge('B', 'D')
-        self.add_edge('C', 'D')
-        self.add_edge('D', 'B')
-
-
+        self.createModel()
 
     def createModel(self):
         # Read. "ecoli" and "salmonella" are also valid arguments
@@ -82,7 +69,7 @@ class Model():
         print('------- Names for nodes -------------')
         for r in model.reactions:
             #[r.id, r.name, r.subsystem, r.lower_bound, r.upper_bound]
-            self.add_node({'@alias':r.name})
+            self.add_node({'@alias':r.id})
             #print(r.id)
         # Now search for each node all edges coming out from it
         for r in model.reactions:
