@@ -28,7 +28,6 @@ class Main():
         self.viewer = Viewer()
 
         #transfer model to viewer
-
         for node in self.model.graph.nodes():
              self.viewer.add_node(node)
         print("added nodes:",self.model.graph.number_of_nodes())
@@ -42,12 +41,9 @@ class Main():
         initial_pos = nx.random_layout(self.model.graph)
         initial_pos = self.viewer.graph_visualization.networkx_positions_to_pixels(initial_pos)
         self.viewer.graph_visualization.set_node_positions(initial_pos)
-        #print("added graph nodes:", self.viewer.graph_visualization.nx_graph.number_of_nodes())
         self._logger.info("Added " + str(self.viewer.graph_visualization.nx_graph.number_of_nodes()) + " graph nodes")
-
-        #self.viewer.connect(self.viewer.animateButton, QtCore.SIGNAL("clicked()"), self.viewer.animate_button)
-        self.viewer.graph_visualization.animate_nodes(True)      
-
+        self._logger.info("Added " + str(self.viewer.graph_visualization.nx_graph.number_of_edges()) + " graph edges")
+        self.viewer.graph_visualization.animate_nodes(True)
 
 if __name__ == '__main__':
     # process params with a argparse

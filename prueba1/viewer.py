@@ -29,6 +29,7 @@ from PyQt4.QtGui import QGraphicsScene, QPushButton, QBrush, QColor
 from widgets.QNetworkxGraph.QNetworkxGraph import QNetworkxWidget, NodeShapes
 from logger import RCManagerLogger
 from rcmanagerSignals import CustomSignalCollection
+import networkx as nx
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -54,10 +55,37 @@ class Viewer(QtGui.QMainWindow, MainWindow):
         # logger object for viewer
         self._logger = RCManagerLogger().get_logger("RCManager.Viewer")
 
+        # set the text window to display the log data
+        RCManagerLogger().set_text_edit_handler(self.textBrowser)
+
         # initialise graph object
         self.add_graph_visualization()
 
-        #self.set_background_color()
+
+        # connect the various UI components (buttons etc.) to the relevant functions (slots)
+        self.setup_actions()
+
+        CustomSignalCollection.viewerIsReady.emit()
+
+    def setup_actions(self):
+        CustomSignalCollection.addNode.connect(self.add_node)
+        #self.connect(self.tabWidget, QtCore.SIGNAL("currentChanged(int)"), self.tab_index_changed)
+
+        # File menu buttons
+        # self.connect(self.actionSave, QtCore.SIGNAL("triggered(bool)"), lambda: self.save_model(False))
+        # self.connect(self.actionSave_As, QtCore.SIGNAL("triggered(bool)"), lambda: self.save_model(True))
+        # self.connect(self.actionOpen, QtCore.SIGNAL("triggered(bool)"), self.open_model)
+        # self.connect(self.actionExit, QtCore.SIGNAL("triggered(bool)"), self.close_model)
+
+        # Edit menu buttons
+
+        # View menu buttons
+   #     self.connect(self.actionLogger, QtCore.SIGNAL("triggered(bool)"), self.toggle_logger_view)
+    #    self.connect(self.actionComponent_List, QtCore.SIGNAL("triggered(bool)"), self.toggle_component_list_view)
+     #   self.connect(self.actionFull_Screen, QtCore.SIGNAL("triggered(bool)"), self.toggle_full_screen_view)
+
+        # Tools menu buttons
+        self.connect(self.actionSet_Color, QtCore.SIGNAL("triggered(bool)"), self.set_background_color)
         self.connect(self.actionON, QtCore.SIGNAL("triggered(bool)"), self.graph_visualization.start_animation)
         self.connect(self.actionOFF, QtCore.SIGNAL("triggered(bool)"), self.graph_visualization.stop_animation)
 
@@ -67,7 +95,7 @@ class Viewer(QtGui.QMainWindow, MainWindow):
             self.graph_visualization.background_color = color
             self.graph_visualization.setBackgroundBrush(color)
 
-    def add_node(self, node, nodedata=None, position=None):
+    def add_node(self, node, nodedata=None, position=None, region=None):
         self.graph_visualization.add_node(node, position)
         createdNode = self.graph_visualization.get_node(node)['item']
 
