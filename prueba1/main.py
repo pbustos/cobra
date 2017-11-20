@@ -8,7 +8,7 @@ from widgets.QNetworkxGraph.QNetworkxGraph import QNetworkxWidget, NodeShapes
 from viewer import Viewer
 from model import Model
 import networkx as nx
-
+from logger import RCManagerLogger
 
 class Main():
     """This is the Main class which spawns the objects for the Model,
@@ -18,6 +18,8 @@ class Main():
         # parser = argparse.ArgumentParser()
         # parser.add_argument("filename", help="the xml file containing the component graph data")
         # args = parser.parse_args()
+
+        self._logger = RCManagerLogger().get_logger("RCManager.Model")
 
         #create model as a NetworkX graph using dict
         self.model = Model()
@@ -40,9 +42,10 @@ class Main():
         initial_pos = nx.random_layout(self.model.graph)
         initial_pos = self.viewer.graph_visualization.networkx_positions_to_pixels(initial_pos)
         self.viewer.graph_visualization.set_node_positions(initial_pos)
-        print("added graph nodes:", self.viewer.graph_visualization.nx_graph.number_of_nodes())
+        #print("added graph nodes:", self.viewer.graph_visualization.nx_graph.number_of_nodes())
+        self._logger.info("Added " + str(self.viewer.graph_visualization.nx_graph.number_of_nodes()) + " graph nodes")
 
-	self.viewer.connect(self.viewer.animateButton, QtCore.SIGNAL("clicked()"), self.viewer.animate_button)
+        #self.viewer.connect(self.viewer.animateButton, QtCore.SIGNAL("clicked()"), self.viewer.animate_button)
         self.viewer.graph_visualization.animate_nodes(True)      
 
 
