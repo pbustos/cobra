@@ -27,6 +27,8 @@ import math, random
 from PyQt4 import QtCore, QtGui, uic
 from PyQt4.QtGui import QGraphicsScene, QPushButton, QBrush, QColor
 from widgets.QNetworkxGraph.QNetworkxGraph import QNetworkxWidget, NodeShapes
+from logger import RCManagerLogger
+from rcmanagerSignals import CustomSignalCollection
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -34,7 +36,7 @@ except AttributeError:
     def _fromUtf8(s):
         return s
 
-MainWindow = uic.loadUiType("cobraUI.ui")[0]  # Load the UI
+MainWindow = uic.loadUiType("cobraUI2.ui")[0]  # Load the UI
 
 class Viewer(QtGui.QMainWindow, MainWindow):
     """ asdfa """
@@ -49,10 +51,15 @@ class Viewer(QtGui.QMainWindow, MainWindow):
         #self.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("share/rcmanager/drawing_green.png")))
         #self.showMaximized()
 
+        # logger object for viewer
+        self._logger = RCManagerLogger().get_logger("RCManager.Viewer")
+
         # initialise graph object
         self.add_graph_visualization()
 
         #self.set_background_color()
+        self.connect(self.actionON, QtCore.SIGNAL("triggered(bool)"), self.graph_visualization.start_animation)
+        self.connect(self.actionOFF, QtCore.SIGNAL("triggered(bool)"), self.graph_visualization.stop_animation)
 
     def set_background_color(self, color=None):
         if not color:
@@ -74,7 +81,7 @@ class Viewer(QtGui.QMainWindow, MainWindow):
         self.graph_visualization.add_edge(first_node=orig_node, second_node=dest_node, label=edge_label)
 
     def add_graph_visualization(self):
-        self.graph_visualization = QNetworkxWidget()
+        self.graph_visualization = QNetworkxWidget(directed=True)
         self.setCentralWidget(self.graph_visualization)
         
     def get_graph_nodes_positions(self):

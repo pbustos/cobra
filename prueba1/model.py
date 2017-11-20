@@ -29,6 +29,8 @@ from PyQt4 import QtCore
 import cobra
 import cobra.test
 from tabulate import tabulate
+from logger import RCManagerLogger
+
 
 class Model():
     """This is the Model object for our MVC model. It stores the component
@@ -41,6 +43,8 @@ class Model():
 
         # this dictionary stores the general configuration informtation about the viewer
         self.generalInformation = dict()
+
+        self._logger = RCManagerLogger().get_logger("RCManager.Model")
 
         # create model
         self.createModel()
@@ -66,7 +70,7 @@ class Model():
 
         # load model as a graph to NX
         # We use the compound  model in which nodes are reactions and edges are metabolites
-        print('------- Names for nodes -------------')
+        #print('------- Names for nodes -------------')
         #for r in model.reactions:
             ##[r.id, r.name, r.subsystem, r.lower_bound, r.upper_bound]
             #self.add_node({'@alias':r.id})
@@ -79,8 +83,9 @@ class Model():
                     # It has to be in another reaction with the same metabolite and a -1
                     for rr in model.reactions:
                         for kk,vv in rr.metabolites.iteritems():
-                            if kk == k and vv == -1:
+                            if rr != r and kk == k and vv == -1:
                                 self.add_edge(r.id,rr.id, k)
+                                break
                                 #print 'Added edge', r.id, rr.id
 #MAL
     def add_node(self, nodedata):
