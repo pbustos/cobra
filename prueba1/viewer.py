@@ -26,7 +26,7 @@
 import math, random
 from PyQt4 import QtCore, QtGui, uic
 from PyQt4.QtGui import QGraphicsScene, QPushButton, QBrush, QColor
-from widgets.QNetworkxGraph.QNetworkxGraph import QNetworkxWidget, NodeShapes
+from widgets.QNetworkxGraph.QNetworkxGraph import QNetworkxWidget, NodeShapes, Circle, Square
 from logger import RCManagerLogger
 from rcmanagerSignals import CustomSignalCollection
 import networkx as nx
@@ -96,7 +96,7 @@ class Viewer(QtGui.QMainWindow, MainWindow):
             self.graph_visualization.setBackgroundBrush(color)
 
     def add_node(self, node, nodedata=None, position=None, region=None):
-        self.graph_visualization.add_node(node, position)
+        self.graph_visualization.add_node(node, position, region)
         createdNode = self.graph_visualization.get_node(node)['item']
 
         # if 'componentType' in nodedata.keys():
@@ -110,7 +110,7 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 
     def add_graph_visualization(self):
         self.graph_visualization = QNetworkxWidget(directed=True)
-        self.setCentralWidget(self.graph_visualization)
+        self.graph_visualization.setParent(self.tabWidget.widget(0))
         
     def get_graph_nodes_positions(self):
         return self.graph_visualization.get_current_nodes_positions()
