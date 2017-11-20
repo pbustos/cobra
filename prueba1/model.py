@@ -72,7 +72,11 @@ class Model():
             #self.add_node({'@alias':r.id})
             ##print(r.id)
         ## Now search for each node all edges coming out from it
+        cont = 0
         for r in model.reactions:
+            #if cont > 50:
+             #   break
+            cont += 1
             for k,v in r.metabolites.iteritems():
                 if v == 1:
                     # The edge comes out. Now find the other end

@@ -32,7 +32,7 @@ class Main():
         print("added nodes:",self.model.graph.number_of_nodes())
         
         for edge in self.model.graph.edges():
-	    self.viewer.add_edge(edge[0], edge[1], str(self.model.graph.edges[edge[0],edge[1]]['label']))
+            self.viewer.add_edge(edge[0], edge[1], str(self.model.graph.edges[edge[0],edge[1]]['label']))
         print("added edges:", self.model.graph.number_of_edges())
 
         self.viewer.show()

@@ -74,7 +74,7 @@ class Viewer(QtGui.QMainWindow, MainWindow):
         self.graph_visualization.add_edge(first_node=orig_node, second_node=dest_node, label=edge_label)
 
     def add_graph_visualization(self):
-        self.graph_visualization = QNetworkxWidget()
+        self.graph_visualization = QNetworkxWidget(directed=True)
         self.setCentralWidget(self.graph_visualization)
         
     def get_graph_nodes_positions(self):
