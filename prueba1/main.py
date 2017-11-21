@@ -26,7 +26,7 @@ class Main():
 		self.model = Model()
 
 		# create Qt Ui in a separate class
-		self.viewer = Viewer()
+		self.viewer = Viewer(self.model.model)
 
 		# transfer model to viewer. to be done in Controller
 
@@ -36,7 +36,7 @@ class Main():
 
 		for node in self.model.graph.nodes():
 			# select region for node maping names, suffixes to regions
-			self.viewer.add_node(node, reg1)
+			self.viewer.add_node(node, citoplasma)
 		print("added nodes:", self.model.graph.number_of_nodes())
 
 		for edge in self.model.graph.edges():
@@ -51,7 +51,7 @@ class Main():
 		self._logger.info("Added " + str(self.viewer.graph_visualization.nx_graph.number_of_nodes()) + " graph nodes")
 		self._logger.info("Added " + str(self.viewer.graph_visualization.nx_graph.number_of_edges()) + " graph edges")
 		self.viewer.graph_visualization.animate_nodes(True)
-		self._logger.info("Simulating now...)
+		self._logger.info("Simulating now...")
 
 if __name__ == '__main__':
 	# process params with a argparse

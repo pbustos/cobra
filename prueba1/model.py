@@ -51,7 +51,7 @@ class Model():
 
     def createModel(self):
         # Read. "ecoli" and "salmonella" are also valid arguments
-        model = cobra.test.create_test_model("textbook")
+        self.model = cobra.test.create_test_model("textbook")
 
         # print model in a table
         # mets = []
@@ -75,17 +75,17 @@ class Model():
             ##[r.id, r.name, r.subsystem, r.lower_bound, r.upper_bound]
             #self.add_node({'@alias':r.id})
             ##print(r.id)
-        ## Now search for each node all edges coming out from it
+
         cont = 0
-        for r in model.reactions:
-            #if cont > 50:
-             #   break
+        for r in self.model.reactions:
+            if cont > 5:
+                break
             cont += 1
             for k,v in r.metabolites.iteritems():
                 if v == 1:
                     # The edge comes out. Now find the other end
                     # It has to be in another reaction with the same metabolite and a -1
-                    for rr in model.reactions:
+                    for rr in self.model.reactions:
                         for kk,vv in rr.metabolites.iteritems():
                             if rr != r and kk == k and vv == -1:
                                 self.add_edge(r.id,rr.id, k)
