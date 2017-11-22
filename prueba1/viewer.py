@@ -78,15 +78,27 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 		self.treeWidgetMetabs.setHeaderLabel("Metabolites")
 		for m in self.model.metabolites:
 			top = QTreeWidgetItem(self.treeWidgetMetabs, [m.name])
-			top.addChild(QTreeWidgetItem([m.formula + " -- " + m.id]))
+			top.addChild(QTreeWidgetItem(['Formula: ' + m.formula]))
+			top.addChild(QTreeWidgetItem(['ID: ' + m.id]))
+			top.addChild(QTreeWidgetItem(['Charge: ' + str(m.charge)]))
 			self.treeWidgetMetabs.insertTopLevelItem(0, top)
 
 		self.treeWidgetReacts.setColumnCount(1)
 		self.treeWidgetReacts.setHeaderLabel("Reactions")
-		for m in self.model.reactions:
-			top = QTreeWidgetItem(self.treeWidgetReacts, [m.name])
-			top.addChild(QTreeWidgetItem([m.id + " -- " + m.subsystem]))
-			self.treeWidgetReacts.insertTopLevelItem(0, top)
+		for r in self.model.reactions:
+			top = QTreeWidgetItem(self.treeWidgetReacts, [r.name + ' (' + r.id + ')'])
+			reaction = QTreeWidgetItem([r.reaction])
+			top.addChild(reaction)
+			reactants = QTreeWidgetItem(['Reactants'])
+			top.addChild(reactants)
+			for m in r.reactants:
+				reactants.addChild(QTreeWidgetItem([m.name + '  ' + str(r.get_coefficient(m.id)) + '  ' + m.compartment]))
+			products = QTreeWidgetItem(['Products'])
+			top.addChild(products)
+			for m in r.products:
+				products.addChild(
+					QTreeWidgetItem([m.name + '  ' + str(r.get_coefficient(m.id)) + '  ' + m.compartment]))
+		self.treeWidgetReacts.insertTopLevelItem(0, top)
 
 	def setup_actions(self):
 		CustomSignalCollection.addNode.connect(self.add_node)
@@ -111,13 +123,11 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 		self.connect(self.actionON, QtCore.SIGNAL("triggered(bool)"), self.graph_visualization.start_animation)
 		self.connect(self.actionOFF, QtCore.SIGNAL("triggered(bool)"), self.graph_visualization.stop_animation)
 
-
 	def set_background_color(self, color=None):
 		if not color:
 			color = QtGui.QColorDialog.getColor()
 			self.graph_visualization.background_color = color
 			self.graph_visualization.setBackgroundBrush(color)
-
 
 	def add_node(self, node, nodedata=None, position=None, region=None):
 		self.graph_visualization.add_node(node, position, region)
@@ -129,19 +139,15 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 		#         return
 		createdNode.node_shape = 2
 
-
 	def add_edge(self, orig_node, dest_node, edge_label):
 		self.graph_visualization.add_edge(first_node=orig_node, second_node=dest_node, label=edge_label)
-
 
 	def add_graph_visualization(self):
 		self.graph_visualization = QNetworkxWidget(directed=True)
 		self.graph_visualization.setParent(self.tabWidget.widget(0))
 
-
 	def get_graph_nodes_positions(self):
 		return self.graph_visualization.get_current_nodes_positions()
-
 
 	def animate_button(checked):
 		graph_visualization.animate_nodes(checked)
