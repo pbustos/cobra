@@ -32,15 +32,17 @@ class Main():
 
 		# create regions
 		citoplasma = Circle(QtCore.QPointF(0, 0), 100)
-		periplasma = Circle(QtCore.QPointF(0, 0), 100)
+		periplasma = Circle(QtCore.QPointF(0, 0), 80)
+		exterior = Circle(QtCore.QPointF(0, 0), 200)
 
 		for node in self.model.graph.nodes():
-			# select region for node maping names, suffixes to regions
-			self.viewer.add_node(node, citoplasma)
+			self.viewer.add_node(node)
 		print("added nodes:", self.model.graph.number_of_nodes())
 
 		for edge in self.model.graph.edges():
-			self.viewer.add_edge(edge[0], edge[1], str(self.model.graph.edges[edge[0], edge[1]]['label']))
+			label = str(self.model.graph.edges[edge[0], edge[1]]['label'])
+			region = str(self.model.graph.edges[edge[0], edge[1]]['comp'])
+			self.viewer.add_edge(edge[0], edge[1], label=label, region=region)
 		print("added edges:", self.model.graph.number_of_edges())
 
 		self.viewer.show()
@@ -50,7 +52,7 @@ class Main():
 		self.viewer.graph_visualization.set_node_positions(initial_pos)
 		self._logger.info("Added " + str(self.viewer.graph_visualization.nx_graph.number_of_nodes()) + " graph nodes")
 		self._logger.info("Added " + str(self.viewer.graph_visualization.nx_graph.number_of_edges()) + " graph edges")
-		self.viewer.graph_visualization.animate_nodes(True)
+		self.viewer.graph_visualization.animate_nodes(False)
 		self._logger.info("Simulating now...")
 
 if __name__ == '__main__':

@@ -29,7 +29,10 @@ from PyQt4.QtGui import QGraphicsScene, QPushButton, QBrush, QColor, QTreeWidget
 from widgets.QNetworkxGraph.QNetworkxGraph import QNetworkxWidget, NodeShapes, Circle, Square
 from logger import RCManagerLogger
 from rcmanagerSignals import CustomSignalCollection
-import networkx as nx
+from chemspipy import ChemSpider
+import cv2
+import urllib
+import numpy as np
 
 try:
 	_fromUtf8 = QtCore.QString.fromUtf8
@@ -64,6 +67,7 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 
 		# initialise graph object
 		self.add_graph_visualization()
+		#self.add_tree_visualization()
 
 		self.drawTree()
 
@@ -71,6 +75,8 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 		self.setup_actions()
 
 		CustomSignalCollection.viewerIsReady.emit()
+
+		self.cs = ChemSpider('47598d1f-b9e3-4ac6-9d54-81221fe04536')
 
 	# Ñapismo
 	def drawTree(self):
@@ -81,6 +87,7 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 			top.addChild(QTreeWidgetItem(['Formula: ' + m.formula]))
 			top.addChild(QTreeWidgetItem(['ID: ' + m.id]))
 			top.addChild(QTreeWidgetItem(['Charge: ' + str(m.charge)]))
+			top.addChild(QTreeWidgetItem(['PNG']))
 			self.treeWidgetMetabs.insertTopLevelItem(0, top)
 
 		self.treeWidgetReacts.setColumnCount(1)
@@ -123,6 +130,37 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 		self.connect(self.actionON, QtCore.SIGNAL("triggered(bool)"), self.graph_visualization.start_animation)
 		self.connect(self.actionOFF, QtCore.SIGNAL("triggered(bool)"), self.graph_visualization.stop_animation)
 
+		#self.connect(self.treeWidgetMetabs, QtCore.SIGNAL('itemClicked(QTreeWidgetItem, int)'), self.treewidgetclickedSlot)
+		self.treeWidgetMetabs.itemClicked.connect(self.treewidgetclickedSlot)
+
+	#@QtCore.pyqtSlot(QTreeWidgetItem, int)
+	def treewidgetclickedSlot(self, w, i):
+		if w.text(i) == 'PNG':
+			f = str(w.parent().child(0).text(0)).partition("Formula: ")[2]
+			print f
+			QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+			elem = self.cs.search(f)[0]
+			print elem.common_name
+			req = urllib.urlopen(elem.image_url)
+			arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
+			img = cv2.imdecode(arr, -1)  # 'load it as it is'
+			big = cv2.resize(img, (0, 0), fx=4, fy=4)
+			self.graph_visualization.stop_animation()
+			QtGui.QApplication.restoreOverrideCursor()
+			cv2.imshow(elem.common_name, big)
+			if cv2.waitKey() & 0xff == 27: quit()
+
+			# width, height, depth = img.shape
+			# pm = QtGui.QPixmap()
+			# pm.convertFromImage(QtGui.QImage(img.data, width, height, depth*width, QtGui.QImage.Format_RGB888))
+			# popup = QtGui.QDialog(self)
+			# popup.setWindowTitle(elem.common_name)
+			# label = QtGui.QLabel(popup)
+			# label.setPixmap(pm)
+			# label.setScaledContents(True)
+			# popup.resize(width,height)
+			# popup.exec_()
+
 	def set_background_color(self, color=None):
 		if not color:
 			color = QtGui.QColorDialog.getColor()
@@ -131,16 +169,16 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 
 	def add_node(self, node, nodedata=None, position=None, region=None):
 		self.graph_visualization.add_node(node, position, region)
-		createdNode = self.graph_visualization.get_node(node)['item']
-
-		# if 'componentType' in nodedata.keys():
+		#createdNode = self.graph_visualization.get_node(node)['item']
+		# if 'componentType' in nodedata.():
 		#     if str(nodedata['componentType']['@value']) == 'agent':
 		#         createdNode.set_node_shape(NodeShapes.SQUARE)
 		#         return
-		createdNode.node_shape = 2
+		#createdNode.node_shape = 2
 
-	def add_edge(self, orig_node, dest_node, edge_label):
-		self.graph_visualization.add_edge(first_node=orig_node, second_node=dest_node, label=edge_label)
+	def add_edge(self, orig_node, dest_node, label, region):
+		#print region
+		self.graph_visualization.add_edge(first_node=orig_node, second_node=dest_node, label=label)
 
 	def add_graph_visualization(self):
 		self.graph_visualization = QNetworkxWidget(directed=True)

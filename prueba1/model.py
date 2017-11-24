@@ -52,6 +52,7 @@ class Model():
     def createModel(self):
         # Read. "ecoli" and "salmonella" are also valid arguments
         self.model = cobra.test.create_test_model("textbook")
+        print 'Cobra: nodes=', len(self.model.metabolites),'reactions=', len(self.model.reactions)
 
         # print model in a table
         # mets = []
@@ -71,31 +72,33 @@ class Model():
         # load model as a graph to NX
         # We use the compound  model in which nodes are reactions and edges are metabolites
         #print('------- Names for nodes -------------')
-        #for r in model.reactions:
+        for r in self.model.reactions:
             ##[r.id, r.name, r.subsystem, r.lower_bound, r.upper_bound]
-            #self.add_node({'@alias':r.id})
+            self.graph.add_node(r.id,  subsystem=r.subsystem, lower_bound = r.lower_bound, upper_bound = r.upper_bound)
             ##print(r.id)
+        print 'Model: added nodes/reactions ', self.graph.number_of_nodes()
 
         cont = 0
         for r in self.model.reactions:
-            if cont > 5:
-                break
+         #   if cont > 5:
+         #       break
             cont += 1
             for k,v in r.metabolites.iteritems():
                 if v == 1:
-                    # The edge comes out. Now find the other end
+                    # The edge comes out. Now find the o ther end
                     # It has to be in another reaction with the same metabolite and a -1
                     for rr in self.model.reactions:
                         for kk,vv in rr.metabolites.iteritems():
                             if rr != r and kk == k and vv == -1:
-                                self.add_edge(r.id,rr.id, k)
+                                self.graph.add_edge(r.id,rr.id, label=k, name=k.name, comp=k.compartment)
                                 break
-                                #print 'Added edge', r.id, rr.id
+        print 'Model: added edges ',self.graph.number_of_edges()
 #MAL
     def add_node(self, nodedata):
-        self.graph.add_node(nodedata['@alias'])
-        for key, value in nodedata.items():
-            self.graph.node[nodedata['@alias']][key] = value
+        #self.graph.add_node(nodedata['@alias'])
+        #for key, value in nodedata.items():
+        #    self.graph.node[nodedata['@alias']][key] = value
+        pass
 
     def add_edge(self, fromNode, toNode, name):
         self.graph.add_edge(fromNode, toNode, label=name)
