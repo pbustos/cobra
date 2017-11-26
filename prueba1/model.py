@@ -72,16 +72,16 @@ class Model():
         # load model as a graph to NX
         # We use the compound  model in which nodes are reactions and edges are metabolites
         #print('------- Names for nodes -------------')
-        for r in self.model.reactions:
+        #for r in self.model.reactions:
             ##[r.id, r.name, r.subsystem, r.lower_bound, r.upper_bound]
-            self.graph.add_node(r.id,  subsystem=r.subsystem, lower_bound = r.lower_bound, upper_bound = r.upper_bound)
+         #   self.graph.add_node(r.id,  subsystem=r.subsystem, lower_bound = r.lower_bound, upper_bound = r.upper_bound)
             ##print(r.id)
-        print 'Model: added nodes/reactions ', self.graph.number_of_nodes()
+        #print 'Model: added nodes/reactions ', self.graph.number_of_nodes()
 
         cont = 0
         for r in self.model.reactions:
-         #   if cont > 5:
-         #       break
+            if cont > 5:
+                break
             cont += 1
             for k,v in r.metabolites.iteritems():
                 if v == 1:

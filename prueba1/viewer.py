@@ -189,3 +189,8 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 
 	def animate_button(checked):
 		graph_visualization.animate_nodes(checked)
+
+	#def resizeEvent(self, event):
+	#	self.graph_visualization.resize(event)
+	#	self._logger.info("Resize event in Viewer...")
+
