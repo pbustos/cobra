@@ -182,8 +182,8 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 
 	def add_graph_visualization(self):
 		self.graph_visualization = QNetworkxWidget(directed=True)
-		self.graph_visualization.setParent(self.tabWidget.widget(0))
-
+		self.tabLayOut.addWidget(self.graph_visualization)
+			
 	def get_graph_nodes_positions(self):
 		return self.graph_visualization.get_current_nodes_positions()
 
