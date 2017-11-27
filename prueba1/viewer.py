@@ -83,28 +83,32 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 		self.treeWidgetMetabs.setColumnCount(1)
 		self.treeWidgetMetabs.setHeaderLabel("Metabolites")
 		for m in self.model.metabolites:
-			top = QTreeWidgetItem(self.treeWidgetMetabs, [m.name])
+			top = QTreeWidgetItem(self.treeWidgetMetabs, [m.id])
 			top.addChild(QTreeWidgetItem(['Formula: ' + m.formula]))
-			top.addChild(QTreeWidgetItem(['ID: ' + m.id]))
+			top.addChild(QTreeWidgetItem(['Name: ' + m.name]))
 			top.addChild(QTreeWidgetItem(['Charge: ' + str(m.charge)]))
 			top.addChild(QTreeWidgetItem(['PNG']))
 			self.treeWidgetMetabs.insertTopLevelItem(0, top)
+		self.treeWidgetMetabs.sortItems(0, QtCore.Qt.AscendingOrder)
 
 		self.treeWidgetReacts.setColumnCount(1)
 		self.treeWidgetReacts.setHeaderLabel("Reactions")
 		for r in self.model.reactions:
-			top = QTreeWidgetItem(self.treeWidgetReacts, [r.name + ' (' + r.id + ')'])
+			top = QTreeWidgetItem(self.treeWidgetReacts, [r.id])
 			reaction = QTreeWidgetItem([r.reaction])
 			top.addChild(reaction)
-			reactants = QTreeWidgetItem(['Reactants'])
-			top.addChild(reactants)
-			for m in r.reactants:
-				reactants.addChild(QTreeWidgetItem([m.name + '  ' + str(r.get_coefficient(m.id)) + '  ' + m.compartment]))
+			reactionName = QTreeWidgetItem([r.name])
+			top.addChild(reactionName)
 			products = QTreeWidgetItem(['Products'])
 			top.addChild(products)
 			for m in r.products:
 				products.addChild(
-					QTreeWidgetItem([m.name + '  ' + str(r.get_coefficient(m.id)) + '  ' + m.compartment]))
+					QTreeWidgetItem([m.id + '  ' + str(r.get_coefficient(m.id)) + '  ' + m.compartment]))
+			reactants = QTreeWidgetItem(['Reactants'])
+			top.addChild(reactants)
+			for m in r.reactants:
+				reactants.addChild(QTreeWidgetItem([m.id + '  ' + str(r.get_coefficient(m.id)) + '  ' + m.compartment]))
+		self.treeWidgetReacts.sortItems(0, QtCore.Qt.AscendingOrder)
 		self.treeWidgetReacts.insertTopLevelItem(0, top)
 
 	def setup_actions(self):

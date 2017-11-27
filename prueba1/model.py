@@ -54,6 +54,9 @@ class Model():
         self.model = cobra.test.create_test_model("textbook")
         print 'Cobra: nodes=', len(self.model.metabolites),'reactions=', len(self.model.reactions)
 
+        solution = self.model.optimize()
+        #print(solution)
+
         # print model in a table
         # mets = []
         # for met in model.metabolites:
@@ -80,28 +83,55 @@ class Model():
 
         cont = 0
         for r in self.model.reactions:
-            if cont > 5:
-                break
+            #if cont > 5:
+            #    break
             cont += 1
-            for k,v in r.metabolites.iteritems():
-                if v == 1:
+            if solution.fluxes[r.id] == 0:
+                print "discarded ", r.id
+                continue
+            for k, v in r.metabolites.iteritems():
+                if v == -1:
                     # The edge comes out. Now find the o ther end
                     # It has to be in another reaction with the same metabolite and a -1
                     for rr in self.model.reactions:
-                        for kk,vv in rr.metabolites.iteritems():
-                            if rr != r and kk == k and vv == -1:
-                                self.graph.add_edge(r.id,rr.id, label=k, name=k.name, comp=k.compartment)
+                        for kk, vv in rr.metabolites.iteritems():
+                            if rr != r and kk == k and vv == 1:
+                                self.graph.add_edge(r.id, rr.id, label=k, name=k.name, comp=k.compartment)
                                 break
-        print 'Model: added edges ',self.graph.number_of_edges()
-#MAL
+                            else:
+                                continue
+                            break
+        print 'Model: added edges ', self.graph.number_of_edges()
+
+        for r in self.model.reactions:
+            # if cont > 5:
+            #    break
+            cont += 1
+            if solution.fluxes[r.id] == 0:
+                print "discarded ", r.id
+                continue
+            for k in r.products:
+                for rr in self.model.reactions:
+                    for kk in rr.reactants:
+                        if rr != r and kk == k:
+                            self.graph.add_edge(r.id, rr.id, label=k, name=k.name, comp=k.compartment)
+
+        print 'Model: added edges ', self.graph.number_of_edges()
+
+
+
     def add_node(self, nodedata):
-        #self.graph.add_node(nodedata['@alias'])
-        #for key, value in nodedata.items():
-        #    self.graph.node[nodedata['@alias']][key] = value
         pass
 
     def add_edge(self, fromNode, toNode, name):
         self.graph.add_edge(fromNode, toNode, label=name)
+
+    def findMetabolicPaths(self):
+        """
+        computes all linear subpaths in the graph (without bifurcations)
+        """
+
+
 
 
 if __name__ == '__main__':
