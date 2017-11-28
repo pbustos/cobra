@@ -140,8 +140,8 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 	#@QtCore.pyqtSlot(QTreeWidgetItem, int)
 	def treewidgetclickedSlot(self, w, i):
 		if w.text(i) == 'PNG':
-			f = str(w.parent().child(0).text(0)).partition("Formula: ")[2]
-			print f
+			f = str(w.parent().child(1).text(0)).partition("Formula: ")[2]
+			print "----------------", w.parent().child(1).text(0)
 			QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
 			elem = self.cs.search(f)[0]
 			print elem.common_name
@@ -173,12 +173,11 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 
 	def add_node(self, node, nodedata=None, position=None, region=None):
 		self.graph_visualization.add_node(node, position, region)
-		#createdNode = self.graph_visualization.get_node(node)['item']
-		# if 'componentType' in nodedata.():
-		#     if str(nodedata['componentType']['@value']) == 'agent':
-		#         createdNode.set_node_shape(NodeShapes.SQUARE)
-		#         return
-		#createdNode.node_shape = 2
+		createdNode = self.graph_visualization.get_node(node)['item']
+		if region == 'metabolite':
+			createdNode.set_node_shape(NodeShapes.SQUARE)
+		else:
+			createdNode.set_node_shape(NodeShapes.CIRCLE)
 
 	def add_edge(self, orig_node, dest_node, label, region):
 		#print region

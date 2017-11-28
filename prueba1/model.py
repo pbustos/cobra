@@ -47,7 +47,7 @@ class Model():
         self._logger = RCManagerLogger().get_logger("RCManager.Model")
 
         # create model
-        self.createModel()
+        self.createModel2()
 
     def createModel(self):
         # Read. "ecoli" and "salmonella" are also valid arguments
@@ -82,26 +82,26 @@ class Model():
         #print 'Model: added nodes/reactions ', self.graph.number_of_nodes()
 
         cont = 0
-        for r in self.model.reactions:
-            #if cont > 5:
-            #    break
-            cont += 1
-            if solution.fluxes[r.id] == 0:
-                print "discarded ", r.id
-                continue
-            for k, v in r.metabolites.iteritems():
-                if v == -1:
-                    # The edge comes out. Now find the o ther end
-                    # It has to be in another reaction with the same metabolite and a -1
-                    for rr in self.model.reactions:
-                        for kk, vv in rr.metabolites.iteritems():
-                            if rr != r and kk == k and vv == 1:
-                                self.graph.add_edge(r.id, rr.id, label=k, name=k.name, comp=k.compartment)
-                                break
-                            else:
-                                continue
-                            break
-        print 'Model: added edges ', self.graph.number_of_edges()
+        # for r in self.model.reactions:
+        #     #if cont > 5:
+        #     #    break
+        #     cont += 1
+        #     if solution.fluxes[r.id] == 0:
+        #         print "discarded ", r.id
+        #         continue
+        #     for k, v in r.metabolites.iteritems():
+        #         if v == -1:
+        #             # The edge comes out. Now find the o ther end
+        #             # It has to be in another reaction with the same metabolite and a -1
+        #             for rr in self.model.reactions:
+        #                 for kk, vv in rr.metabolites.iteritems():
+        #                     if rr != r and kk == k and vv == 1:
+        #                         self.graph.add_edge(r.id, rr.id, label=k, name=k.name, comp=k.compartment)
+        #                         break
+        #                     else:
+        #                         continue
+        #                     break
+        # print 'Model: added edges ', self.graph.number_of_edges()
 
         for r in self.model.reactions:
             # if cont > 5:
@@ -117,6 +117,32 @@ class Model():
                             self.graph.add_edge(r.id, rr.id, label=k, name=k.name, comp=k.compartment)
 
         print 'Model: added edges ', self.graph.number_of_edges()
+
+    def createModel2(self):
+        # Read. "ecoli" and "salmonella" are also valid arguments
+        self.model = cobra.test.create_test_model("textbook")
+        print 'Cobra: nodes=', len(self.model.metabolites),'reactions=', len(self.model.reactions)
+
+        solution = self.model.optimize()
+        #load model as a graph to NX
+        # We use the compound  model in which nodes are reactions and edges are metabolites
+        for r in self.model.reactions:
+            if solution.fluxes[r.id] != 0:
+                self.graph.add_node(r.id, type='reaction', subsystem=r.subsystem, lower_bound=r.lower_bound, upper_bound=r.upper_bound)
+            else:
+                print "discarded ", r.id
+        for r in self.model.metabolites:
+            self.graph.add_node(r.id, type='metabolite')
+
+        cont = 0
+        for r in self.model.reactions:
+            if solution.fluxes[r.id] != 0:
+                for k in r.products:
+                    self.graph.add_edge(r.id, k.id, label='', name=k.name, comp=k.compartment)
+                for k in r.reactants:
+                    self.graph.add_edge(k.id, r.id, label='', name=k.name, comp=k.compartment)
+        print 'Model: added edges ', self.graph.number_of_edges()
+
 
 
 

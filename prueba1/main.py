@@ -36,7 +36,7 @@ class Main():
 		exterior = Circle(QtCore.QPointF(0, 0), 200)
 
 		for node in self.model.graph.nodes():
-			self.viewer.add_node(node)
+			self.viewer.add_node(node, region=self.model.graph.nodes[node]['type'])
 		print("added nodes:", self.model.graph.number_of_nodes())
 
 		for edge in self.model.graph.edges():
