@@ -50,24 +50,36 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 		super(Viewer, self).__init__()
 
 		# Ñapa
-		self.model = model
+		self.model = model.model
+		self.graph = model.graph
 
 		# setup rcmanager UI
 		self.setupUi(self)
-
-		# set  window icon
-		# self.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("share/rcmanager/drawing_green.png")))
-		# self.showMaximized()
+		self.read_settings()
 
 		# logger object for viewer
 		self._logger = RCManagerLogger().get_logger("RCManager.Viewer")
-
 		# set the text window to display the log data
 		RCManagerLogger().set_text_edit_handler(self.textBrowser)
 
 		# initialise graph object
 		self.add_graph_visualization()
 		#self.add_tree_visualization()
+
+		for node in self.graph.nodes():
+			type = self.graph.nodes[node]['type']
+			if type == 'reaction':
+				self.add_node(node, tipo=self.graph.nodes[node]['type'], flow=self.graph.nodes[node]['flow'])
+			else:
+				self.add_node(node, tipo =self.graph.nodes[node]['type'])
+
+		print("added nodes:", self.graph.number_of_nodes())
+
+		for edge in self.graph.edges():
+			#label = str(self.model.graph.edges[edge[0], edge[1]]['label'])
+			region = str(self.graph.edges[edge[0], edge[1]]['comp'])
+			self.add_edge(edge[0], edge[1], label=None)
+		print("added edges:", self.graph.number_of_edges())
 
 		self.drawTree()
 
@@ -77,6 +89,7 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 		CustomSignalCollection.viewerIsReady.emit()
 
 		self.cs = ChemSpider('47598d1f-b9e3-4ac6-9d54-81221fe04536')
+
 
 	# Ñapismo
 	def drawTree(self):
@@ -171,17 +184,18 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 			self.graph_visualization.background_color = color
 			self.graph_visualization.setBackgroundBrush(color)
 
-	def add_node(self, node, nodedata=None, position=None, region=None):
-		self.graph_visualization.add_node(node, position, region)
+	def add_node(self, node, nodedata=None, position=None, tipo=None, flow=40):
+		self.graph_visualization.add_node(node, position, tipo)
 		createdNode = self.graph_visualization.get_node(node)['item']
-		if region == 'metabolite':
+		if tipo == 'metabolite':
 			createdNode.set_node_shape(NodeShapes.SQUARE)
-		else:
+		elif tipo == 'reaction':
 			createdNode.set_node_shape(NodeShapes.CIRCLE)
+			createdNode.set_size(int(float(flow)*3.0))
 
-	def add_edge(self, orig_node, dest_node, label, region):
+	def add_edge(self, orig_node, dest_node, label=None):
 		#print region
-		self.graph_visualization.add_edge(first_node=orig_node, second_node=dest_node, label=label)
+		self.graph_visualization.add_edge(first_node=orig_node, second_node=dest_node, label=label, label_visible=False)
 
 	def add_graph_visualization(self):
 		self.graph_visualization = QNetworkxWidget(directed=True)
@@ -196,4 +210,27 @@ class Viewer(QtGui.QMainWindow, MainWindow):
 	#def resizeEvent(self, event):
 	#	self.graph_visualization.resize(event)
 	#	self._logger.info("Resize event in Viewer...")
+
+	def write_settings(self):
+		settings = QtCore.QSettings("Cobra-UI")
+		settings.beginGroup("MainWindow")
+		settings.setValue("size", self.size())
+		settings.setValue("pos", self.pos())
+		settings.endGroup()
+		settings.beginGroup("CentralWidget")
+		settings.setValue("size", self.tabWidget.size())
+		settings.setValue("pos", self.tabWidget.pos())
+		settings.endGroup()
+
+	def read_settings(self):
+		settings = QtCore.QSettings("Cobra-UI")
+		settings.beginGroup("MainWindow")
+		self.resize(settings.value("size", QtCore.QSize(400, 400)).toSize())
+		self.move(settings.value("pos", QtCore.QPoint(200, 200)).toPoint())
+		settings.endGroup()
+		settings.beginGroup("CentralWidget")
+		self.tabWidget.resize(settings.value("size", QtCore.QSize(400, 400)).toSize())
+		self.tabWidget.move(settings.value("pos", QtCore.QPoint(200, 200)).toPoint())
+		settings.endGroup()
+
 

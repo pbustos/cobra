@@ -30,6 +30,7 @@ import cobra
 import cobra.test
 from tabulate import tabulate
 from logger import RCManagerLogger
+import pygraphviz as pgv
 
 
 class Model():
@@ -41,84 +42,26 @@ class Model():
         # this is the networkx digraph object
         self.graph = nx.DiGraph()
 
+        # GraphViz graph
+        self.gviz = pgv.AGraph(directed=True)
+
         # this dictionary stores the general configuration informtation about the viewer
         self.generalInformation = dict()
 
         self._logger = RCManagerLogger().get_logger("RCManager.Model")
 
         # create model
-        self.createModel2()
+        self.createModel()
+
+        # draw GraphViz
+        self.gviz.layout()
+#        self.gviz.draw('graph.png',prog='twopi')
+        self.gviz.draw('graph.png', prog='twopi')
+
+
+
 
     def createModel(self):
-        # Read. "ecoli" and "salmonella" are also valid arguments
-        self.model = cobra.test.create_test_model("textbook")
-        print 'Cobra: nodes=', len(self.model.metabolites),'reactions=', len(self.model.reactions)
-
-        solution = self.model.optimize()
-        #print(solution)
-
-        # print model in a table
-        # mets = []
-        # for met in model.metabolites:
-        #     mets.append([met.id, met.formula, met.name, met.charge, met.compartment])
-        # print()
-        # print("-----------Metabolites-------------")
-        # print(tabulate(mets, headers=['ID', 'Formula', 'Name', 'Charge', 'Comp']))
-        #
-        # print()
-        # reacts = []
-        # for react in model.reactions:
-        #     reacts.append([react.id, react.name, react.subsystem, react.lower_bound, react.upper_bound])
-        # print("-----------Reactions---------------")
-        # print(tabulate(reacts, headers=['ID', 'Name', 'Subsystem', 'lower_bound', 'upper_bound']))
-
-        # load model as a graph to NX
-        # We use the compound  model in which nodes are reactions and edges are metabolites
-        #print('------- Names for nodes -------------')
-        #for r in self.model.reactions:
-            ##[r.id, r.name, r.subsystem, r.lower_bound, r.upper_bound]
-         #   self.graph.add_node(r.id,  subsystem=r.subsystem, lower_bound = r.lower_bound, upper_bound = r.upper_bound)
-            ##print(r.id)
-        #print 'Model: added nodes/reactions ', self.graph.number_of_nodes()
-
-        cont = 0
-        # for r in self.model.reactions:
-        #     #if cont > 5:
-        #     #    break
-        #     cont += 1
-        #     if solution.fluxes[r.id] == 0:
-        #         print "discarded ", r.id
-        #         continue
-        #     for k, v in r.metabolites.iteritems():
-        #         if v == -1:
-        #             # The edge comes out. Now find the o ther end
-        #             # It has to be in another reaction with the same metabolite and a -1
-        #             for rr in self.model.reactions:
-        #                 for kk, vv in rr.metabolites.iteritems():
-        #                     if rr != r and kk == k and vv == 1:
-        #                         self.graph.add_edge(r.id, rr.id, label=k, name=k.name, comp=k.compartment)
-        #                         break
-        #                     else:
-        #                         continue
-        #                     break
-        # print 'Model: added edges ', self.graph.number_of_edges()
-
-        for r in self.model.reactions:
-            # if cont > 5:
-            #    break
-            cont += 1
-            if solution.fluxes[r.id] == 0:
-                print "discarded ", r.id
-                continue
-            for k in r.products:
-                for rr in self.model.reactions:
-                    for kk in rr.reactants:
-                        if rr != r and kk == k:
-                            self.graph.add_edge(r.id, rr.id, label=k, name=k.name, comp=k.compartment)
-
-        print 'Model: added edges ', self.graph.number_of_edges()
-
-    def createModel2(self):
         # Read. "ecoli" and "salmonella" are also valid arguments
         self.model = cobra.test.create_test_model("textbook")
         print 'Cobra: nodes=', len(self.model.metabolites),'reactions=', len(self.model.reactions)
@@ -127,23 +70,27 @@ class Model():
         #load model as a graph to NX
         # We use the compound  model in which nodes are reactions and edges are metabolites
         for r in self.model.reactions:
-            if solution.fluxes[r.id] != 0:
-                self.graph.add_node(r.id, type='reaction', subsystem=r.subsystem, lower_bound=r.lower_bound, upper_bound=r.upper_bound)
+            if solution.fluxes[r.id] > 0:
+                #print(solution.fluxes[r.id])
+                self.graph.add_node(r.id, type='reaction', subsystem=r.subsystem, lower_bound=r.lower_bound, upper_bound=r.upper_bound, flow=solution.fluxes[r.id])
+                self.gviz.add_node(r.id)
+                for m in r.metabolites:
+                    self.graph.add_node(m.id, type='metabolite')
+                    self.gviz.add_node(m.id)
             else:
-                print "discarded ", r.id
-        for r in self.model.metabolites:
-            self.graph.add_node(r.id, type='metabolite')
+                #print "discarded ", r.id
+                pass
 
         cont = 0
         for r in self.model.reactions:
-            if solution.fluxes[r.id] != 0:
+            if solution.fluxes[r.id] > 0:
                 for k in r.products:
-                    self.graph.add_edge(r.id, k.id, label='', name=k.name, comp=k.compartment)
+                    self.graph.add_edge(r.id, k.id,  name=k.name, comp=k.compartment)
+                    self.gviz.add_edge(r.id, k.id)
                 for k in r.reactants:
-                    self.graph.add_edge(k.id, r.id, label='', name=k.name, comp=k.compartment)
+                    self.graph.add_edge(k.id, r.id,  name=k.name, comp=k.compartment)
+                    self.gviz.add_edge(k.id, r.id)
         print 'Model: added edges ', self.graph.number_of_edges()
-
-
 
 
     def add_node(self, nodedata):
@@ -156,8 +103,7 @@ class Model():
         """
         computes all linear subpaths in the graph (without bifurcations)
         """
-
-
+        #for n in self.graph.nodes:
 
 
 if __name__ == '__main__':
