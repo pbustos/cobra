@@ -67,10 +67,16 @@ class Model():
         print 'Cobra: nodes=', len(self.model.metabolites),'reactions=', len(self.model.reactions)
 
         solution = self.model.optimize()
+        self.model.summary()
+        for r in self.model.reactions:
+            print(r.id, "   ", solution.fluxes[r.id])
+
+        print "------------------------------"
+
         #load model as a graph to NX
         # We use the compound  model in which nodes are reactions and edges are metabolites
         for r in self.model.reactions:
-            if solution.fluxes[r.id] > 0:
+            if abs(solution.fluxes[r.id]) > 0:
                 #print(solution.fluxes[r.id])
                 self.graph.add_node(r.id, type='reaction', subsystem=r.subsystem, lower_bound=r.lower_bound, upper_bound=r.upper_bound, flow=solution.fluxes[r.id])
                 self.gviz.add_node(r.id)
@@ -83,7 +89,7 @@ class Model():
 
         cont = 0
         for r in self.model.reactions:
-            if solution.fluxes[r.id] > 0:
+            if abs(solution.fluxes[r.id]) > 0:
                 for k in r.products:
                     self.graph.add_edge(r.id, k.id,  name=k.name, comp=k.compartment)
                     self.gviz.add_edge(r.id, k.id)
