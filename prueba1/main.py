@@ -47,7 +47,7 @@ class Main():
 
 		self.viewer.show()
 
-		initial_pos = nx.shell_layout(self.model.graph)
+		initial_pos = nx.random_layout(self.model.graph)
 		initial_pos = self.viewer.graph_visualization.networkx_positions_to_pixels(initial_pos)
 		self.viewer.graph_visualization.set_node_positions(initial_pos)
 		self._logger.info("Added " + str(self.viewer.graph_visualization.nx_graph.number_of_nodes()) + " graph nodes")

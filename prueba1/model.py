@@ -80,8 +80,8 @@ class Model():
 
         cont = 0
         for r in self.model.reactions:
-            if cont > 5:
-                break
+            #if cont > 5:
+            #    break
             cont += 1
             for k,v in r.metabolites.iteritems():
                 if v == 1:
