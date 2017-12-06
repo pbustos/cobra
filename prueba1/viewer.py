@@ -43,7 +43,6 @@ except AttributeError:
 
 MainWindow = uic.loadUiType("cobraUI2.ui")[0]  # Load the UI
 
-
 class Viewer(QtGui.QMainWindow, MainWindow):
     """ asdfa """
 

@@ -44,6 +44,7 @@ class Model():
 
         # GraphViz graph
         self.gviz = pgv.AGraph(directed=True)
+        self.gviz.read('graph.dot')
 
         # this dictionary stores the general configuration informtation about the viewer
         self.generalInformation = dict()
@@ -54,9 +55,9 @@ class Model():
         self.createModel()
 
         # draw GraphViz
-        self.gviz.layout()
-#        self.gviz.draw('graph.png',prog='twopi')
-        self.gviz.draw('graph.png', prog='twopi')
+        print("Laying out...")
+        self.gviz.draw('graph.png', prog='dot')
+        #self.gviz.draw('graph.png', prog='twopi')
 
 
 
@@ -76,20 +77,26 @@ class Model():
         #load model as a graph to NX
         # We use the compound  model in which nodes are reactions and edges are metabolites
         for r in self.model.reactions:
-            if abs(solution.fluxes[r.id]) > 0:
+            if abs(solution.fluxes[r.id]) >= 0:
                 #print(solution.fluxes[r.id])
                 self.graph.add_node(r.id, type='reaction', subsystem=r.subsystem, lower_bound=r.lower_bound, upper_bound=r.upper_bound, flow=solution.fluxes[r.id])
-                self.gviz.add_node(r.id)
+                if abs(solution.fluxes[r.id]) == 0:
+                    node = self.gviz.get_node(r.id)
+                    self.gviz.add_node(node, color='green', fixedsize='true')
+                    #self.gviz.add_node(r.id, shape='diamond', color="green", style='filled')
+                else:
+                    self.gviz.add_node(r.id, shape='diamond', color="green", style='filled', fixedsize='true')
+                    pass
                 for m in r.metabolites:
                     self.graph.add_node(m.id, type='metabolite')
-                    self.gviz.add_node(m.id)
+                    self.gviz.add_node(m.id, color="red", style='filled')
             else:
                 #print "discarded ", r.id
                 pass
 
         cont = 0
         for r in self.model.reactions:
-            if abs(solution.fluxes[r.id]) > 0:
+            if abs(solution.fluxes[r.id]) >= 0:
                 for k in r.products:
                     self.graph.add_edge(r.id, k.id,  name=k.name, comp=k.compartment)
                     self.gviz.add_edge(r.id, k.id)
